@@ -26,3 +26,4 @@ dist-ssr
 .env
 dist/
 .DS_Store
+test-db.mjs
