@@ -4,7 +4,8 @@
   "scripts": {
     "dev:frontend": "npm run dev --workspace=frontend",
     "restart-server": "npm run restart --workspace=backend",
-    "build": "npm run build --workspaces"
+    "build": "npm run build --workspaces",
+    "start:render": "npm run start --workspace=backend"
   },
   "type": "module",
   "workspaces": ["frontend", "backend", "packages/shared"]
