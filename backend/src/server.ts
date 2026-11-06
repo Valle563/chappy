@@ -1,9 +1,9 @@
 import express from "express";
 import path from "node:path";
-import { ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { z } from "zod";
 import { db, TABLE_NAME } from "./db.ts";
-import { ZChannel } from "../../packages/shared/src/schema.ts"
+import { ZChannel, ZMessage } from "../../packages/shared/src/schema.ts"
 
 const app = express();
 app.use(express.static(path.join(import.meta.dirname, "../../../../frontend/dist")))
@@ -36,6 +36,31 @@ app.get("/api/channels", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
+app.get("/api/channels/:channelId/messages", async (req, res) => {
+  try {
+    const result = await db.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "pk = :pk AND begins_with(sk, :prefix)",
+        ExpressionAttributeValues: {
+          ":pk": `CHANNEL#${req.params.channelId}`,
+          ":prefix": "MSG#",
+        }
+      })
+    )
+    const parsed = z.array(ZMessage).safeParse(result.Items)
+    if (!parsed.success) {
+      console.error(parsed.error)
+      res.sendStatus(500)
+      return;
+    }
+    res.json(parsed.data)
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
+})
 
 app.listen(port, () => {
   console.log(`Servern lyssnar på port ${port}`)
