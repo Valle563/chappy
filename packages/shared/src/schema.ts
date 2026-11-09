@@ -1,7 +1,5 @@
 import { z } from "zod"
 
-// create one schema for each line in database (ZUser-användare, ZChannel-kanal, ZMessage-meddelande)
-
 export const ZChannel = z.object ({
   pk: z.string(),
   sk: z.string(),
@@ -27,3 +25,10 @@ export const ZMessage = z.object ({
 })
 
 export type Message = z.infer<typeof ZMessage>
+
+export const ZNewMessage = z.object ({
+  sender: z.string(),
+  text: z.string().min(1),
+})
+
+export type NewMessage = z.infer<typeof ZNewMessage>
