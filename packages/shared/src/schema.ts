@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+
 export const ZChannel = z.object ({
   pk: z.string(),
   sk: z.string(),
@@ -32,3 +33,10 @@ export const ZNewMessage = z.object ({
 })
 
 export type NewMessage = z.infer<typeof ZNewMessage>
+
+export const ZCredentials = z.object({
+  username: z.string().min(3),
+  password: z.string().min(8),
+})
+
+export type Credentials = z.infer<typeof ZCredentials>
