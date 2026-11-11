@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-
+// ZChannnel = checklista 
 export const ZChannel = z.object ({
   pk: z.string(),
   sk: z.string(),
@@ -8,6 +8,7 @@ export const ZChannel = z.object ({
   isLocked: z.boolean(), 
 })
 
+// z.infer = typescript får Channel (inte skriva två gånger)
 export type Channel = z.infer<typeof ZChannel>
 
 export const ZUser = z.object ({

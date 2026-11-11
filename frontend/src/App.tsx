@@ -42,7 +42,8 @@ function App() {
         {data.map((item) => (
         <li key={item.pk}>
           <button onClick={() => loadMessages(item.pk.replace("CHANNEL#", ""))}>
-            {item.pk.replace("CHANNEL#", "")}
+            {item.pk.replace("CHANNEL#", "")} 
+            {/* handle klick */}
           </button>
         </li>
         ))}
