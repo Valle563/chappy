@@ -1,7 +1,7 @@
 import express from 'express'
 import { type Express } from 'express'
 import path from 'node:path'
-import { logger } from './middleware.ts'
+import { logger, authenticate } from './middleware.ts'
 import channelRouter from './routes/channels.ts'
 import authRouter from './routes/auth.ts'
 
@@ -12,6 +12,7 @@ const distPath: string = path.resolve(import.meta.dirname, '../../../../frontend
 app.use(express.json())
 app.use(express.static(distPath))
 app.use('/', logger)
+app.use(authenticate)
 
 app.use('/api/channels', channelRouter)
 app.use('/api/auth', authRouter)

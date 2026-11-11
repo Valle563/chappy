@@ -1,10 +1,31 @@
 import express, { type Router } from 'express'
-import { ScanCommand, QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, QueryCommand, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { z } from 'zod'
 import { db, TABLE_NAME } from '../db.ts'
 import { ZChannel, ZMessage, ZNewMessage } from '../../../packages/shared/src/schema.ts'
 
 const router: Router = express.Router()
+
+async function checkAccess(
+	channelId: string,
+	username: unknown,
+): Promise<'ok' | 'missing' | 'locked'> {
+	const result = await db.send(
+		new GetCommand({
+			TableName: TABLE_NAME,
+			Key: { pk: `CHANNEL#${channelId}`, sk: 'meta' },
+		}),
+	)
+
+	const parsed = ZChannel.safeParse(result.Item)
+	if (!parsed.success) {
+		return 'missing'
+	}
+	if (parsed.data.isLocked && typeof username !== 'string') {
+		return 'locked'
+	}
+	return 'ok'
+}
 
 router.get('/', async (req, res) => {
 	try {
@@ -31,6 +52,16 @@ router.get('/', async (req, res) => {
 
 router.get('/:channelId/messages', async (req, res) => {
 	try {
+		const access = await checkAccess(req.params.channelId, res.locals.username)
+		if (access === 'missing') {
+			res.sendStatus(404)
+			return
+		}
+		if (access === 'locked') {
+			res.sendStatus(401)
+			return
+		}
+
 		const result = await db.send(
 			new QueryCommand({
 				TableName: TABLE_NAME,
@@ -70,6 +101,16 @@ router.post('/:channelId/messages', async (req, res) => {
 	}
 
 	try {
+		const access = await checkAccess(req.params.channelId, res.locals.username)
+		if (access === 'missing') {
+			res.sendStatus(404)
+			return
+		}
+		if (access === 'locked') {
+			res.sendStatus(401)
+			return
+		}
+
 		await db.send(new PutCommand({ TableName: TABLE_NAME, Item: item }))
 		res.status(201).json(item)
 	} catch (error) {
