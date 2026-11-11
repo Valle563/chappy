@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Channel, Message } from "../../packages/shared/src/schema.ts"
+import Login from "./features/login/Login.tsx";
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
   
   return (
     <div>
+      <Login />
       <button onClick={handleClick}> Hämta kanaler </button>
       <ul>
         {data.map((item) => (
