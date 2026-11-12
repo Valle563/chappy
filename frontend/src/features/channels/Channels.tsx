@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { ZSummaryResponse, type Channel, type Message } from "../../packages/shared/src/schema.ts"
-import Login from "./features/login/Login.tsx"
-import { useStore } from "./data/store.ts"
-import DirectMessages from "./features/dm/DirectMessages.tsx";
+import { ZSummaryResponse, type Channel, type Message } from "../../../../packages/shared/src/schema.ts"
+import { useStore } from "../../data/store.ts"
 
 
-function App() {
+function Channels() {
   const [data, setData] = useState<Channel[]>([])
   const [message, setMessage] = useState<Message[]>([])
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null)
@@ -15,14 +13,14 @@ function App() {
   const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
   const [summary, setSummary] = useState("")
 
-  
+
   async function handleClick() {
     const response = await fetch("/api/channels")
     const result = await response.json()
     setData(result)
   }
-  
-  async function loadMessages(channelName: string)  {
+
+  async function loadMessages(channelName: string) {
     const response = await fetch(`/api/channels/${channelName}/messages`, {
       headers: authHeaders
     })
@@ -40,66 +38,64 @@ function App() {
   }
 
   async function sendMessage() {
-  if (!selectedChannel) return
+    if (!selectedChannel) return
 
-  const response = await fetch(`/api/channels/${selectedChannel}/messages`, {
-    method: "POST",
-    headers: { "Content-type": "application/json", ...authHeaders },
-    body: JSON.stringify({ text })
-  })
-  if (!response.ok) {
-    setError("Kunde inte skicka meddelandet")
-    return
-  }
-
-  setText("")
-  loadMessages(selectedChannel)
-}
-
-async function summarizeChannel() {
-  if (!selectedChannel) return
-
-  setSummary("Sammanfattar...")
-  try {
-    const response = await fetch(`/api/channels/${selectedChannel}/summary`, {
+    const response = await fetch(`/api/channels/${selectedChannel}/messages`, {
       method: "POST",
-      headers: authHeaders
+      headers: { "Content-type": "application/json", ...authHeaders },
+      body: JSON.stringify({ text })
     })
     if (!response.ok) {
-      setSummary("")
-      setError("Kunde inte sammanfatta kanalen")
+      setError("Kunde inte skicka meddelandet")
       return
     }
-    const data: unknown = await response.json()
-    const parsed = ZSummaryResponse.safeParse(data)
-    if (!parsed.success) {
-      setSummary("")
-      setError("Oväntat svar från servern")
-      return
-    }
-    setError("")
-    setSummary(parsed.data.summary)
-  } catch (error) {
-    console.error(error)
-    setSummary("")
-    setError("Något gick fel")
-  }
-}
 
-  
+    setText("")
+    loadMessages(selectedChannel)
+  }
+
+  async function summarizeChannel() {
+    if (!selectedChannel) return
+
+    setSummary("Sammanfattar...")
+    try {
+      const response = await fetch(`/api/channels/${selectedChannel}/summary`, {
+        method: "POST",
+        headers: authHeaders
+      })
+      if (!response.ok) {
+        setSummary("")
+        setError("Kunde inte sammanfatta kanalen")
+        return
+      }
+      const data: unknown = await response.json()
+      const parsed = ZSummaryResponse.safeParse(data)
+      if (!parsed.success) {
+        setSummary("")
+        setError("Oväntat svar från servern")
+        return
+      }
+      setError("")
+      setSummary(parsed.data.summary)
+    } catch (error) {
+      console.error(error)
+      setSummary("")
+      setError("Något gick fel")
+    }
+  }
+
+
   return (
     <div>
-      <Login />
       <p>{error}</p>
       <button onClick={handleClick}> Hämta kanaler </button>
       <ul>
         {data.map((item) => (
-        <li key={item.pk}>
-          <button onClick={() => loadMessages(item.pk.replace("CHANNEL#", ""))}>
-            {item.pk.replace("CHANNEL#", "")} 
-            {/* handle klick */}
-          </button>
-        </li>
+          <li key={item.pk}>
+            <button onClick={() => loadMessages(item.pk.replace("CHANNEL#", ""))}>
+              {item.pk.replace("CHANNEL#", "")}
+            </button>
+          </li>
         ))}
       </ul>
       <ul>
@@ -107,7 +103,7 @@ async function summarizeChannel() {
           <li key={msg.sk}> {msg.sender}: {msg.text}</li>
         ))}
       </ul>
-            {selectedChannel && (
+      {selectedChannel && (
         <div>
           <input
             value={text}
@@ -119,10 +115,9 @@ async function summarizeChannel() {
           <p>{summary}</p>
         </div>
       )}
-      <DirectMessages />
     </div>
   )
 }
 
 
-export default App
+export default Channels
