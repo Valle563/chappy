@@ -1,5 +1,5 @@
 import express, { type Router } from 'express'
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { z } from 'zod'
 import { db, TABLE_NAME } from '../db.ts'
 import { ZUser } from '../../../packages/shared/src/schema.ts'
@@ -38,5 +38,27 @@ router.get('/', async (req, res) => {
 		res.sendStatus(500)
 	}
 })
+
+router.delete('/me', async (req, res) => {
+	const username = res.locals.username
+	if (typeof username !== 'string') {
+		res.sendStatus(401)
+		return
+	}
+
+	try {
+		await db.send(
+			new DeleteCommand({
+				TableName: TABLE_NAME,
+				Key: { pk: `USER#${username}`, sk: 'PROFILE' },
+			}),
+		)
+		res.sendStatus(204)
+	} catch (error) {
+		console.error(error)
+		res.sendStatus(500)
+	}
+})
+
 
 export default router

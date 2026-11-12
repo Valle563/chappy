@@ -1,5 +1,5 @@
 import express, { type Router } from 'express'
-import { ScanCommand, QueryCommand, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, QueryCommand, PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { z } from 'zod'
 import { db, TABLE_NAME } from '../db.ts'
 import { ZChannel, ZMessage, ZNewMessage, ZNewChannel } from '../../../packages/shared/src/schema.ts'
@@ -213,5 +213,52 @@ router.post('/:channelId/summary', async (req, res) => {
 		res.sendStatus(500)
 	}
 })
+
+router.delete('/:channelId', async (req, res) => {
+	const username = res.locals.username
+	if (typeof username !== 'string') {
+		res.sendStatus(401)
+		return
+	}
+
+	try {
+		const channel = await db.send(
+			new GetCommand({
+				TableName: TABLE_NAME,
+				Key: { pk: `CHANNEL#${req.params.channelId}`, sk: 'meta' },
+			}),
+		)
+		const parsed = ZChannel.safeParse(channel.Item)
+		if (!parsed.success) {
+			res.sendStatus(404)
+			return
+		}
+		if (parsed.data.createdBy !== username) {
+			res.sendStatus(403)
+			return
+		}
+
+		const items = await db.send(
+			new QueryCommand({
+				TableName: TABLE_NAME,
+				KeyConditionExpression: 'pk = :pk',
+				ExpressionAttributeValues: { ':pk': `CHANNEL#${req.params.channelId}` },
+			}),
+		)
+		for (const item of items.Items ?? []) {
+			await db.send(
+				new DeleteCommand({
+					TableName: TABLE_NAME,
+					Key: { pk: item.pk, sk: item.sk },
+				}),
+			)
+		}
+		res.sendStatus(204)
+	} catch (error) {
+		console.error(error)
+		res.sendStatus(500)
+	}
+})
+
 
 export default router
