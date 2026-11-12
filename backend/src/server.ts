@@ -4,6 +4,7 @@ import path from 'node:path'
 import { logger, authenticate } from './middleware.ts'
 import channelRouter from './routes/channels.ts'
 import authRouter from './routes/auth.ts'
+import dmRouter from './routes/dm.ts'
 
 const app: Express = express()
 const port: number = Number(process.env.PORT) || 3011
@@ -16,6 +17,7 @@ app.use(authenticate)
 
 app.use('/api/channels', channelRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/dm', dmRouter)
 
 app.listen(port, () => {
 	console.log(`Servern lyssnar på port ${port}`)
