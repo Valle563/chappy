@@ -10,6 +10,7 @@ const Login = () => {
 	const username = useStore(store => store.username)
 	const setAuth = useStore(store => store.setAuth)
 	const logout = useStore(store => store.logout)
+  const token = useStore(store => store.token)
 
 	const handleLogin = async () => {
 		try {
@@ -40,14 +41,34 @@ const Login = () => {
 		}
 	}
 
-	if (username) {
-		return (
-			<div>
-				<p>Inloggad som {username}</p>
-				<button onClick={logout}>Logga ut</button>
-			</div>
-		)
+  const handleDeleteAccount = async () => {
+	if (!window.confirm('Vill du verkligen ta bort ditt konto?')) return
+	try {
+		const response = await fetch('/api/users/me', {
+			method: 'DELETE',
+			headers: { Authorization: `Bearer ${token}` },
+		})
+		if (!response.ok) {
+			setLoginMessage('Kunde inte ta bort kontot')
+			return
+		}
+		logout()
+	} catch (error) {
+		console.error(error)
+		setLoginMessage('Något gick fel, försök igen')
 	}
+}
+
+if (username) {
+	return (
+		<div>
+			<p>Inloggad som {username}</p>
+			<button onClick={logout}>Logga ut</button>
+			<button onClick={handleDeleteAccount}>Ta bort konto</button>
+			<p>{loginMessage}</p>
+		</div>
+	)
+}
 
 	return (
 		<div>

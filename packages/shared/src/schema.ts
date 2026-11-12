@@ -55,6 +55,6 @@ export const ZUsernames = z.array(z.string())
 export const ZMessages = z.array(ZMessage)
 
 export const ZNewChannel = z.object({
-	name: z.string().min(1).max(30).regex(/^[a-zA-Z0-9åäöÅÄÖ-]+$/),
+	name: z.string().trim().min(1).max(30).regex(/^[a-zA-Z0-9åäöÅÄÖ -]+$/),
 	isLocked: z.boolean(),
 })
