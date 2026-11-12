@@ -1,8 +1,7 @@
 import type { RouteObject } from 'react-router'
 import Root from './pages/Root.tsx'
-import ChannelsView from './pages/ChannelsView.tsx'
-import DmView from './pages/DmView.tsx'
 import LoginView from './pages/LoginView.tsx'
+import WelcomeView from './pages/WelcomeView.tsx'
 
 const routerConfig: RouteObject[] = [
 	{ path: '/login', Component: LoginView },
@@ -10,8 +9,7 @@ const routerConfig: RouteObject[] = [
 		path: '/',
 		Component: Root,
 		children: [
-			{ path: '/', Component: ChannelsView },
-			{ path: '/dm', Component: DmView },
+			{ index: true, Component: WelcomeView },
 		],
 	},
 ]

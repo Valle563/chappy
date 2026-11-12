@@ -41,3 +41,16 @@ input {
 	border-radius: var(--radius);
 	padding: 8px 10px;
 }
+
+.avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--purple);
+	color: var(--white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	flex-shrink: 0;
+}
