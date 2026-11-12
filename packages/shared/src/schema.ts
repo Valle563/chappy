@@ -44,4 +44,9 @@ export type Credentials = z.infer<typeof ZCredentials>
 export const ZLoginResponse = z.object({
 	token: z.string(),
 })
+
 export type LoginResponse = z.infer<typeof ZLoginResponse>
+
+export const ZSummaryResponse = z.object({
+	summary: z.string(),
+})

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Channel, Message } from "../../packages/shared/src/schema.ts"
+import { ZSummaryResponse, type Channel, type Message } from "../../packages/shared/src/schema.ts"
 import Login from "./features/login/Login.tsx"
 import { useStore } from "./data/store.ts";
 
@@ -12,6 +12,7 @@ function App() {
   const token = useStore(store => store.token)
   const [error, setError] = useState("")
   const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+  const [summary, setSummary] = useState("")
 
   
   async function handleClick() {
@@ -32,6 +33,7 @@ function App() {
     }
     const result = await response.json()
     setError("")
+    setSummary("")
     setMessage(result)
     setSelectedChannel(channelName)
   }
@@ -52,6 +54,37 @@ function App() {
   setText("")
   loadMessages(selectedChannel)
 }
+
+async function summarizeChannel() {
+  if (!selectedChannel) return
+
+  setSummary("Sammanfattar...")
+  try {
+    const response = await fetch(`/api/channels/${selectedChannel}/summary`, {
+      method: "POST",
+      headers: authHeaders
+    })
+    if (!response.ok) {
+      setSummary("")
+      setError("Kunde inte sammanfatta kanalen")
+      return
+    }
+    const data: unknown = await response.json()
+    const parsed = ZSummaryResponse.safeParse(data)
+    if (!parsed.success) {
+      setSummary("")
+      setError("Oväntat svar från servern")
+      return
+    }
+    setError("")
+    setSummary(parsed.data.summary)
+  } catch (error) {
+    console.error(error)
+    setSummary("")
+    setError("Något gick fel")
+  }
+}
+
   
   return (
     <div>
@@ -81,6 +114,8 @@ function App() {
             placeholder="Skriv ett meddelande"
           />
           <button onClick={sendMessage}>Skicka</button>
+          <button onClick={summarizeChannel}>Sammanfatta kanalen</button>
+          <p>{summary}</p>
         </div>
       )}
     </div>
