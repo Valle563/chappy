@@ -12,6 +12,9 @@ function Channels() {
   const [error, setError] = useState("")
   const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
   const [summary, setSummary] = useState("")
+  const username = useStore(store => store.username)
+  const [newName, setNewName] = useState("")
+  const [newLocked, setNewLocked] = useState(false)
 
 
   async function handleClick() {
@@ -84,18 +87,72 @@ function Channels() {
     }
   }
 
+  async function createChannel() {
+  const response = await fetch("/api/channels", {
+    method: "POST",
+    headers: { "Content-type": "application/json", ...authHeaders },
+    body: JSON.stringify({ name: newName, isLocked: newLocked })
+  })
+  if (!response.ok) {
+    setError(response.status === 409 ? "Kanalen finns redan" : "Ogiltigt namn (bokstäver, siffror och bindestreck)")
+    return
+  }
+  setError("")
+  setNewName("")
+  setNewLocked(false)
+  handleClick()
+}
+
+async function deleteChannel(channelId: string) {
+  const response = await fetch(`/api/channels/${channelId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  })
+  if (!response.ok) {
+    setError("Kunde inte ta bort kanalen")
+    return
+  }
+  if (selectedChannel === channelId) {
+    setSelectedChannel(null)
+    setMessage([])
+  }
+  setError("")
+  handleClick()
+}
+
 
   return (
     <div>
       <p>{error}</p>
+      {username && (
+  <div>
+    <input
+      value={newName}
+      onChange={(e) => setNewName(e.target.value)}
+      placeholder="Namn på ny kanal"
+    />
+    <label>
+      <input
+        type="checkbox"
+        checked={newLocked}
+        onChange={(e) => setNewLocked(e.target.checked)}
+      />
+      Låst
+    </label>
+    <button onClick={createChannel}>Skapa kanal</button>
+  </div>
+)}
       <button onClick={handleClick}> Hämta kanaler </button>
       <ul>
         {data.map((item) => (
           <li key={item.pk}>
             <button onClick={() => loadMessages(item.pk.replace("CHANNEL#", ""))}>
-              {item.pk.replace("CHANNEL#", "")}
+              {item.pk.replace("CHANNEL#", "")} {item.isLocked && "🔒"}
             </button>
-          </li>
+  {item.createdBy === username && (
+    <button onClick={() => deleteChannel(item.pk.replace("CHANNEL#", ""))}>Ta bort</button>
+  )}
+</li>
         ))}
       </ul>
       <ul>
