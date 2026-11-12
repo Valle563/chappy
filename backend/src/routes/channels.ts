@@ -3,6 +3,7 @@ import { ScanCommand, QueryCommand, PutCommand, GetCommand } from '@aws-sdk/lib-
 import { z } from 'zod'
 import { db, TABLE_NAME } from '../db.ts'
 import { ZChannel, ZMessage, ZNewMessage } from '../../../packages/shared/src/schema.ts'
+import { summarize } from '../ai.ts'
 
 const router: Router = express.Router()
 
@@ -93,10 +94,12 @@ router.post('/:channelId/messages', async (req, res) => {
 		return
 	}
 
+	const sender = typeof res.locals.username === 'string' ? res.locals.username : 'Gäst'
+
 	const item = {
 		pk: `CHANNEL#${req.params.channelId}`,
 		sk: `MSG#${new Date().toISOString()}`,
-		sender: parsed.data.sender,
+		sender,
 		text: parsed.data.text,
 	}
 
@@ -113,6 +116,58 @@ router.post('/:channelId/messages', async (req, res) => {
 
 		await db.send(new PutCommand({ TableName: TABLE_NAME, Item: item }))
 		res.status(201).json(item)
+	} catch (error) {
+		console.error(error)
+		res.sendStatus(500)
+	}
+})
+
+router.post('/:channelId/summary', async (req, res) => {
+	try {
+		const access = await checkAccess(req.params.channelId, res.locals.username)
+		if (access === 'missing') {
+			res.sendStatus(404)
+			return
+		}
+		if (access === 'locked') {
+			res.sendStatus(401)
+			return
+		}
+
+		const result = await db.send(
+			new QueryCommand({
+				TableName: TABLE_NAME,
+				KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
+				ExpressionAttributeValues: {
+					':pk': `CHANNEL#${req.params.channelId}`,
+					':prefix': 'MSG#',
+				},
+			}),
+		)
+
+		const parsed = z.array(ZMessage).safeParse(result.Items)
+		if (!parsed.success) {
+			console.error(parsed.error)
+			res.sendStatus(500)
+			return
+		}
+
+		if (parsed.data.length === 0) {
+			res.json({ summary: 'Det finns inga meddelanden att sammanfatta.' })
+			return
+		}
+
+		const conversation = parsed.data
+			.slice(-50)
+			.map(m => `${m.sender}: ${m.text}`)
+			.join('\n')
+
+		const summary = await summarize(conversation)
+		if (summary === null) {
+			res.sendStatus(500)
+			return
+		}
+		res.json({ summary })
 	} catch (error) {
 		console.error(error)
 		res.sendStatus(500)

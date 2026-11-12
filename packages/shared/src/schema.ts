@@ -29,7 +29,6 @@ export const ZMessage = z.object ({
 export type Message = z.infer<typeof ZMessage>
 
 export const ZNewMessage = z.object ({
-  sender: z.string(),
   text: z.string().min(1),
 })
 
@@ -41,3 +40,13 @@ export const ZCredentials = z.object({
 })
 
 export type Credentials = z.infer<typeof ZCredentials>
+
+export const ZLoginResponse = z.object({
+	token: z.string(),
+})
+
+export type LoginResponse = z.infer<typeof ZLoginResponse>
+
+export const ZSummaryResponse = z.object({
+	summary: z.string(),
+})
