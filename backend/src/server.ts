@@ -5,6 +5,7 @@ import { logger, authenticate } from './middleware.ts'
 import channelRouter from './routes/channels.ts'
 import authRouter from './routes/auth.ts'
 import dmRouter from './routes/dm.ts'
+import usersRouter from './routes/users.ts'
 
 const app: Express = express()
 const port: number = Number(process.env.PORT) || 3011
@@ -18,6 +19,11 @@ app.use(authenticate)
 app.use('/api/channels', channelRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/dm', dmRouter)
+app.use('/api/users', usersRouter)
+
+app.get('/{*splat}', (req, res) => {
+	res.sendFile(path.join(distPath, 'index.html'))
+})
 
 app.listen(port, () => {
 	console.log(`Servern lyssnar på port ${port}`)
