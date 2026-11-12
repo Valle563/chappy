@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ZSummaryResponse, type Channel, type Message } from "../../packages/shared/src/schema.ts"
 import Login from "./features/login/Login.tsx"
-import { useStore } from "./data/store.ts";
+import { useStore } from "./data/store.ts"
+import DirectMessages from "./features/dm/DirectMessages.tsx";
 
 
 function App() {
@@ -118,6 +119,7 @@ async function summarizeChannel() {
           <p>{summary}</p>
         </div>
       )}
+      <DirectMessages />
     </div>
   )
 }

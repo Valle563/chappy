@@ -50,3 +50,6 @@ export type LoginResponse = z.infer<typeof ZLoginResponse>
 export const ZSummaryResponse = z.object({
 	summary: z.string(),
 })
+
+export const ZUsernames = z.array(z.string())
+export const ZMessages = z.array(ZMessage)
