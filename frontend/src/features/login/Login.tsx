@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../../data/store'
+import { ZLoginResponse } from '../../../../packages/shared/src/schema'
 
 const Login = () => {
 	const [usernameInput, setUsernameInput] = useState('')
@@ -23,8 +24,14 @@ const Login = () => {
 				return
 			}
 
-			const data = await response.json()
-			setAuth(data.token, usernameInput)
+      const data: unknown = await response.json()
+      const parsed = ZLoginResponse.safeParse(data)
+      if (!parsed.success) {
+        setLoginMessage('Oväntat svar från servern')
+        return
+      }
+
+      setAuth(parsed.data.token, usernameInput)
 			setLoginMessage('')
 			setPasswordInput('')
 		} catch (error) {
@@ -62,3 +69,4 @@ const Login = () => {
 }
 
 export default Login
+
