@@ -29,7 +29,6 @@ export const ZMessage = z.object ({
 export type Message = z.infer<typeof ZMessage>
 
 export const ZNewMessage = z.object ({
-  sender: z.string(),
   text: z.string().min(1),
 })
 

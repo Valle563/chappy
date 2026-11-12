@@ -93,10 +93,12 @@ router.post('/:channelId/messages', async (req, res) => {
 		return
 	}
 
+	const sender = typeof res.locals.username === 'string' ? res.locals.username : 'Gäst'
+
 	const item = {
 		pk: `CHANNEL#${req.params.channelId}`,
 		sk: `MSG#${new Date().toISOString()}`,
-		sender: parsed.data.sender,
+		sender,
 		text: parsed.data.text,
 	}
 
