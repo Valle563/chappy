@@ -26,7 +26,6 @@ const Sidebar = () => {
 	}, [setChannels])
 
 	useEffect(() => {
-		if (!token) return
 		fetchUsers(token).then(result => {
 			if (result) setUsers(result)
 		})
@@ -53,6 +52,7 @@ const Sidebar = () => {
 			setNewLocked(false)
 			setShowForm(false)
 			setError('')
+			navigate(`/channels/${encodeURIComponent(newName.trim())}`)
 		} catch (err) {
 			console.error(err)
 			setError('Något gick fel')
@@ -121,24 +121,22 @@ const Sidebar = () => {
 				})}
 			</div>
 
-			{username && (
-				<div className="sidebar-section">
-					<div className="sidebar-heading">
-						<span>DIREKTMEDDELANDEN</span>
-					</div>
-					{users.map(user => (
-						<NavLink key={user} to={`/dm/${encodeURIComponent(user)}`} className="sidebar-link dm">
-							{user}
-						</NavLink>
-					))}
+			<div className="sidebar-section">
+				<div className="sidebar-heading">
+					<span>DIREKTMEDDELANDEN</span>
 				</div>
-			)}
+				{users.map(user => (
+					<NavLink key={user} to={`/dm/${encodeURIComponent(user)}`} className="sidebar-link dm">
+						{user}
+					</NavLink>
+				))}
+			</div>
 
 			<div className="sidebar-user">
 				{username ? (
 					<>
 						<div className="sidebar-user-info">
-							<div className="avatar">{username[0].toUpperCase()}</div>
+							<div className="avatar">{username.charAt(0).toUpperCase()}</div>
 							<div>
 								{username}
 								<small>Inloggad</small>

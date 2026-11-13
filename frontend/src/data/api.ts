@@ -14,9 +14,8 @@ export async function fetchChannels(): Promise<Channel[] | null> {
 
 export async function fetchUsers(token: string): Promise<string[] | null> {
 	try {
-		const response = await fetch('/api/users', {
-			headers: { Authorization: `Bearer ${token}` },
-		})
+		const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+		const response = await fetch('/api/users', { headers })
 		if (!response.ok) return null
 		const parsed = ZUsernames.safeParse(await response.json())
 		return parsed.success ? parsed.data : null
