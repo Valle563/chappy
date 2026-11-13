@@ -1,10 +1,16 @@
+
 import { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router'
 import { useStore } from '../../data/store'
 import { fetchChannels, fetchUsers } from '../../data/api'
 import './Sidebar.css'
 
-const Sidebar = () => {
+type Props = {
+	open: boolean
+	onNavigate: () => void
+}
+
+const Sidebar = ({ open, onNavigate }: Props) => {
 	const token = useStore(store => store.token)
 	const username = useStore(store => store.username)
 	const channels = useStore(store => store.channels)
@@ -35,24 +41,36 @@ const Sidebar = () => {
 		try {
 			const response = await fetch('/api/channels', {
 				method: 'POST',
-				headers: { 'Content-type': 'application/json', Authorization: `Bearer ${token}` },
-				body: JSON.stringify({ name: newName.trim(), isLocked: newLocked }),
+				headers: {
+					'Content-type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					name: newName.trim(),
+					isLocked: newLocked,
+				}),
 			})
+
 			if (!response.ok) {
 				setError(
-					response.status === 409 ? 'Kanalen finns redan'
-					: response.status === 400 ? 'Ogiltigt namn (bokstäver, siffror, mellanslag och bindestreck, max 30 tecken)'
-					: 'Kunde inte skapa kanalen'
+					response.status === 409
+						? 'Kanalen finns redan'
+						: response.status === 400
+							? 'Ogiltigt namn (bokstäver, siffror, mellanslag och bindestreck, max 30 tecken)'
+							: 'Kunde inte skapa kanalen'
 				)
 				return
 			}
+
 			const result = await fetchChannels()
 			if (result) setChannels(result)
+
 			setNewName('')
 			setNewLocked(false)
 			setShowForm(false)
 			setError('')
 			navigate(`/channels/${encodeURIComponent(newName.trim())}`)
+			onNavigate()
 		} catch (err) {
 			console.error(err)
 			setError('Något gick fel')
@@ -61,17 +79,21 @@ const Sidebar = () => {
 
 	const deleteAccount = async () => {
 		if (!window.confirm('Vill du verkligen ta bort ditt konto?')) return
+
 		try {
 			const response = await fetch('/api/users/me', {
 				method: 'DELETE',
 				headers: { Authorization: `Bearer ${token}` },
 			})
+
 			if (!response.ok) {
 				setError('Kunde inte ta bort kontot')
 				return
 			}
+
 			logout()
 			navigate('/')
+			onNavigate()
 		} catch (err) {
 			console.error(err)
 			setError('Något gick fel')
@@ -79,7 +101,7 @@ const Sidebar = () => {
 	}
 
 	return (
-		<aside className="sidebar">
+		<aside className={open ? 'sidebar open' : 'sidebar'}>
 			<div className="sidebar-logo">
 				<span className="logo-icon">💬</span> Chappy
 			</div>
@@ -88,9 +110,15 @@ const Sidebar = () => {
 				<div className="sidebar-heading">
 					<span>KANALER</span>
 					{username && (
-						<button className="icon-button" onClick={() => setShowForm(!showForm)}>+</button>
+						<button
+							className="icon-button"
+							onClick={() => setShowForm(!showForm)}
+						>
+							+
+						</button>
 					)}
 				</div>
+
 				{showForm && (
 					<div className="channel-form">
 						<input
@@ -110,11 +138,19 @@ const Sidebar = () => {
 						<button onClick={createChannel}>Skapa kanal</button>
 					</div>
 				)}
+
 				{error && <p className="sidebar-error">{error}</p>}
+
 				{channels.map(channel => {
 					const id = channel.pk.replace('CHANNEL#', '')
+
 					return (
-						<NavLink key={channel.pk} to={`/channels/${encodeURIComponent(id)}`} className="sidebar-link">
+						<NavLink
+							key={channel.pk}
+							to={`/channels/${encodeURIComponent(id)}`}
+							className="sidebar-link"
+							onClick={onNavigate}
+						>
 							{channel.isLocked ? '🔒' : '#'} {id}
 						</NavLink>
 					)
@@ -125,8 +161,14 @@ const Sidebar = () => {
 				<div className="sidebar-heading">
 					<span>DIREKTMEDDELANDEN</span>
 				</div>
+
 				{users.map(user => (
-					<NavLink key={user} to={`/dm/${encodeURIComponent(user)}`} className="sidebar-link dm">
+					<NavLink
+						key={user}
+						to={`/dm/${encodeURIComponent(user)}`}
+						className="sidebar-link dm"
+						onClick={onNavigate}
+					>
 						{user}
 					</NavLink>
 				))}
@@ -136,15 +178,20 @@ const Sidebar = () => {
 				{username ? (
 					<>
 						<div className="sidebar-user-info">
-							<div className="avatar">{username.charAt(0).toUpperCase()}</div>
+							<div className="avatar">
+								{username.charAt(0).toUpperCase()}
+							</div>
 							<div>
 								{username}
 								<small>Inloggad</small>
 							</div>
 						</div>
+
 						<div className="sidebar-user-actions">
 							<button onClick={logout}>Logga ut</button>
-							<button className="danger" onClick={deleteAccount}>Ta bort konto</button>
+							<button className="danger" onClick={deleteAccount}>
+								Ta bort konto
+							</button>
 						</div>
 					</>
 				) : (
@@ -156,8 +203,11 @@ const Sidebar = () => {
 								<small>Inte inloggad</small>
 							</div>
 						</div>
+
 						<div className="sidebar-user-actions">
-							<button onClick={() => navigate('/login')}>Logga in</button>
+							<button onClick={() => navigate('/login')}>
+								Logga in
+							</button>
 						</div>
 					</>
 				)}
