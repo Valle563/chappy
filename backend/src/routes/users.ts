@@ -8,10 +8,6 @@ const router: Router = express.Router()
 
 router.get('/', async (req, res) => {
 	const username = res.locals.username
-	if (typeof username !== 'string') {
-		res.sendStatus(401)
-		return
-	}
 
 	try {
 		const result = await db.send(
@@ -59,6 +55,5 @@ router.delete('/me', async (req, res) => {
 		res.sendStatus(500)
 	}
 })
-
 
 export default router
