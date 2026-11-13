@@ -1,0 +1,41 @@
+.dm-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.dm-message {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	max-width: 70%;
+}
+
+.dm-message.mine {
+	align-self: flex-end;
+	align-items: flex-end;
+}
+
+.dm-message.theirs {
+	align-self: flex-start;
+}
+
+.dm-bubble {
+	padding: 8px 12px;
+	border-radius: 12px;
+	font-size: 14px;
+}
+
+.dm-message.mine .dm-bubble {
+	background: var(--purple);
+	color: var(--white);
+}
+
+.dm-message.theirs .dm-bubble {
+	background: var(--white);
+}
+
+.dm-meta {
+	font-size: 11px;
+	color: var(--text-muted);
+}

@@ -1,17 +1,11 @@
-import { NavLink, Outlet } from 'react-router'
-import Login from '../features/login/Login.tsx'
+import { Outlet } from 'react-router'
+import Sidebar from '../features/sidebar/Sidebar'
+import './Root.css'
 
 const Root = () => (
-	<div>
-		<header>
-			<h1>Chappy</h1>
-			<Login />
-			<nav>
-				<NavLink to="/"> Kanaler </NavLink>
-				<NavLink to="/dm"> Direktmeddelanden </NavLink>
-			</nav>
-		</header>
-		<main>
+	<div className="root-layout">
+		<Sidebar />
+		<main className="root-main">
 			<Outlet />
 		</main>
 	</div>

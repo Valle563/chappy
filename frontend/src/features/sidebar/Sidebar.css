@@ -1,0 +1,137 @@
+.sidebar {
+	width: 240px;
+	flex-shrink: 0;
+	height: 100vh;
+	position: sticky;
+	top: 0;
+	overflow-y: auto;
+	background: var(--navy);
+	color: var(--text-on-dark);
+	display: flex;
+	flex-direction: column;
+	padding: 20px 14px;
+	gap: 20px;
+}
+
+.sidebar-logo {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--white);
+	font-weight: 700;
+	font-size: 18px;
+}
+
+.sidebar-logo .logo-icon {
+	background: var(--purple);
+	border-radius: var(--radius);
+	padding: 4px 7px;
+}
+
+.sidebar-heading {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	margin-bottom: 6px;
+}
+
+.icon-button {
+	background: transparent;
+	color: var(--text-on-dark);
+	font-size: 18px;
+	line-height: 1;
+	padding: 0 6px;
+}
+
+.sidebar-link {
+	display: block;
+	padding: 7px 10px;
+	border-radius: var(--radius);
+	color: var(--text-on-dark);
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.sidebar-link:hover {
+	background: var(--navy-hover);
+}
+
+.sidebar-link.active {
+	background: var(--navy-hover);
+	color: var(--white);
+}
+
+.sidebar-link.dm.active {
+	background: var(--purple);
+}
+
+.channel-form {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.channel-form label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+}
+
+.channel-form button {
+	background: var(--purple);
+	color: var(--white);
+	padding: 6px;
+}
+
+.sidebar-error {
+	color: #ffb4b4;
+	font-size: 12px;
+	margin-bottom: 6px;
+}
+
+.sidebar-user {
+	margin-top: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	border-top: 1px solid var(--navy-hover);
+	padding-top: 14px;
+}
+
+.sidebar-user-info {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--white);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.sidebar-user-info small {
+	display: block;
+	font-weight: 400;
+	font-size: 11px;
+	color: var(--text-on-dark);
+}
+
+.sidebar-user-actions {
+	display: flex;
+	gap: 6px;
+}
+
+.sidebar-user-actions button {
+	flex: 1;
+	background: var(--navy-hover);
+	color: var(--text-on-dark);
+	padding: 6px;
+	font-size: 12px;
+}
+
+.sidebar-user-actions button.danger {
+	color: #ffb4b4;
+}

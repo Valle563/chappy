@@ -1,0 +1,42 @@
+.login-card {
+	background: #f3f3f7;
+	border-radius: 16px;
+	padding: 28px;
+	width: 320px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h2 {
+	font-size: 22px;
+}
+
+.login-card label {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.login-card .primary {
+	background: var(--purple);
+	color: var(--white);
+	padding: 10px;
+	font-weight: 600;
+}
+
+.login-card .secondary {
+	background: var(--purple-light);
+	color: var(--white);
+	padding: 10px;
+	font-weight: 600;
+}
+
+.login-card .login-message {
+	color: #b00020;
+	font-size: 13px;
+	min-height: 16px;
+}
